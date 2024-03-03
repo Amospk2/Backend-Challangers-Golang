@@ -1,0 +1,43 @@
+openapi: '3.0.2'
+info:
+  title: Authentication API
+  version: '1.0'
+servers:
+  - url: http://localhost:9999
+
+paths:
+  /login:
+    post:
+      summary: Authenticate user and get access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+        '400':
+          description: Bad request
+
+components:
+  schemas:
+    AuthRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+        - email
+        - password
