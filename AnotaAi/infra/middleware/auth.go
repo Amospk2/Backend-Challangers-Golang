@@ -33,9 +33,8 @@ func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		claims := jwt.MapClaims{}
 		parsedAccessToken, _ := jwt.ParseWithClaims(
-			accessToken, claims,
+			accessToken, jwt.MapClaims{},
 			func(token *jwt.Token) (interface{}, error) {
 				return []byte(os.Getenv("SECRET")), nil
 			},
@@ -46,8 +45,10 @@ func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), "user", claims)
+		ctx := context.WithValue(r.Context(), "user", parsedAccessToken.Claims)
+
 		r = r.WithContext(ctx)
+
 		next(w, r)
 	})
 }

@@ -11,7 +11,7 @@ type SnsService struct {
 	snsClient *sns.SNS
 }
 
-func CreateSession() SnsService {
+func CreateSession() *SnsService {
 	sess := session.Must(session.NewSession())
 
 	// Create a new instance of the service's client with a Session.
@@ -31,7 +31,7 @@ func CreateSession() SnsService {
 		S3ForcePathStyle: aws.Bool(true),
 	})
 
-	return SnsService{snsClient: snsClient}
+	return &SnsService{snsClient: snsClient}
 
 }
 

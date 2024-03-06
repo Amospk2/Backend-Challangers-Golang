@@ -2,8 +2,7 @@ package controllers
 
 import (
 	"api/domain/product"
-	"api/infra/database"
-	"api/infra/service"
+	domain_service "api/domain/service"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -12,12 +11,11 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type ProductController struct {
-	repository *database.ProductRepository
-	service    service.SnsService
+	repository product.ProductRepository
+	service    domain_service.SqsService
 }
 
 func (c *ProductController) GetProducts() http.HandlerFunc {
@@ -100,7 +98,7 @@ func (c *ProductController) UpdateProduct() http.HandlerFunc {
 				product.Category = productRequest.Category
 			}
 
-			if fmt.Sprintf("%T", product.Price) != "int" && product.Price > 0 {
+			if fmt.Sprintf("%T", productRequest.Price) != "int" && productRequest.Price > 0 {
 				product.Price = productRequest.Price
 			}
 
@@ -137,12 +135,7 @@ func (c *ProductController) CreateProduct() http.HandlerFunc {
 				return
 			}
 
-			findproduct, err := c.repository.GetById(product.Id)
-
-			if err == nil && findproduct.Id != "" {
-				w.WriteHeader(http.StatusUnprocessableEntity)
-				return
-			}
+			fmt.Println(123)
 
 			product.Id = uuid.NewString()
 			user := r.Context().Value("user").(jwt.MapClaims)
@@ -167,9 +160,12 @@ func (c *ProductController) CreateProduct() http.HandlerFunc {
 	)
 }
 
-func NewProductController(pool *pgxpool.Pool, s service.SnsService) *ProductController {
+func NewProductController(
+	r product.ProductRepository,
+	s domain_service.SqsService,
+) *ProductController {
 	return &ProductController{
-		repository: database.NewProductRepository(pool),
+		repository: r,
 		service:    s,
 	}
 }

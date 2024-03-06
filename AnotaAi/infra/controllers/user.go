@@ -3,7 +3,6 @@ package controllers
 import (
 	"api/domain/user"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -34,6 +33,7 @@ func (c *UserController) GetUserById() http.HandlerFunc {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			vars := mux.Vars(r)
+
 			users, err := c.repository.GetById(vars["id"])
 
 			if err != nil {
@@ -99,8 +99,11 @@ func (c *UserController) UpdateUser() http.HandlerFunc {
 				}
 			}
 
+			if len(userRequest.Password) != 0 && userRequest.Password != "" {
+				user.Password = userRequest.Password
+			}
+
 			if err = c.repository.Update(user); err != nil {
-				fmt.Print(err)
 				w.WriteHeader(http.StatusBadRequest)
 				return
 			}

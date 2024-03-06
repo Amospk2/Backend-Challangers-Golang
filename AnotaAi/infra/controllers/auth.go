@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -60,8 +59,8 @@ func (c *AuthController) Login() http.HandlerFunc {
 	)
 }
 
-func NewAuthController(pool *pgxpool.Pool) *AuthController {
+func NewAuthController(r user.UserRepository) *AuthController {
 	return &AuthController{
-		repository: user.NewUserRepositoryImp(pool),
+		repository: r,
 	}
 }

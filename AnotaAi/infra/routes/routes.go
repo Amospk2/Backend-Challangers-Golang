@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"api/domain/user"
 	"api/infra/controllers"
 	"api/infra/database"
 	"api/infra/middleware"
@@ -13,10 +12,10 @@ import (
 
 func addRoutes(muxR *mux.Router, pool *pgxpool.Pool) {
 	service := service.CreateSession()
-	NewUserRouter(controllers.NewUserController(user.NewUserRepositoryImp(pool))).Load(muxR)
-	NewProductRouter(controllers.NewProductController(pool, service)).Load(muxR)
-	NewCategoryRouter(controllers.NewCategoryController(pool, service)).Load(muxR)
-	NewAuthRouter(controllers.NewAuthController(pool)).Load(muxR)
+	NewUserRouter(controllers.NewUserController(database.NewUserRepositoryImp(pool))).Load(muxR)
+	NewProductRouter(controllers.NewProductController(database.NewProductRepository(pool), service)).Load(muxR)
+	NewCategoryRouter(controllers.NewCategoryController(database.NewCategoryRepository(pool), service)).Load(muxR)
+	NewAuthRouter(controllers.NewAuthController(database.NewUserRepositoryImp(pool))).Load(muxR)
 	muxR.Use(mux.CORSMethodMiddleware(muxR))
 }
 

@@ -2,21 +2,20 @@ package controllers
 
 import (
 	"api/domain/category"
-	"api/infra/database"
-	"api/infra/service"
+	domain_service "api/domain/service"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type CategoryController struct {
-	repository *database.CategoryRepository
-	service    service.SnsService
+	repository category.CategoryRepository
+	service    domain_service.SqsService
 }
 
 func (c *CategoryController) GetCategorys() http.HandlerFunc {
@@ -130,16 +129,9 @@ func (c *CategoryController) CreateCategory() http.HandlerFunc {
 				return
 			}
 
-			findcategory, err := c.repository.GetById(category.Id)
-
-			if err == nil && findcategory.Id != "" {
-				w.WriteHeader(http.StatusUnprocessableEntity)
-				return
-			}
-
 			category.Id = uuid.NewString()
-			user := r.Context().Value("user").(map[string]string)
-			category.OwnerID = user["user"]
+			user := r.Context().Value("user").(jwt.MapClaims)
+			category.OwnerID = user["user"].(string)
 
 			if err = c.repository.Create(category); err != nil {
 				log.Fatal(err)
@@ -160,9 +152,12 @@ func (c *CategoryController) CreateCategory() http.HandlerFunc {
 	)
 }
 
-func NewCategoryController(pool *pgxpool.Pool, s service.SnsService) *CategoryController {
+func NewCategoryController(
+	r category.CategoryRepository,
+	s domain_service.SqsService,
+) *CategoryController {
 	return &CategoryController{
-		repository: database.NewCategoryRepository(pool),
+		repository: r,
 		service:    s,
 	}
 }
