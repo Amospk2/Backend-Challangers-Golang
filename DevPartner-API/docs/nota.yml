@@ -1,0 +1,97 @@
+swagger: '2.0'
+info:
+  title: Nota API
+  description: API para gerenciamento de notas
+  version: '1.0'
+host: localhost:8080
+basePath: /
+schemes:
+  - http
+paths:
+  /notas:
+    get:
+      summary: Lista todas as notas
+      responses:
+        '200':
+          description: Lista de notas retornada com sucesso
+    post:
+      summary: Cria uma nova nota
+      parameters:
+        - in: body
+          name: nota
+          description: Dados da nota a ser criada
+          required: true
+          schema:
+            $ref: '#/definitions/Nota'
+      responses:
+        '201':
+          description: Nota criada com sucesso
+    delete:
+      summary: Deleta uma nota pelo ID
+      parameters:
+        - in: path
+          name: id
+          description: ID da nota a ser deletada
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Nota deletada com sucesso
+  /notas/{id}:
+    get:
+      summary: Obtém uma nota pelo ID
+      parameters:
+        - in: path
+          name: id
+          description: ID da nota a ser obtida
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Nota retornada com sucesso
+        '404':
+          description: Nota não encontrada
+    put:
+      summary: Atualiza uma nota pelo ID
+      parameters:
+        - in: path
+          name: id
+          description: ID da nota a ser atualizada
+          required: true
+          type: string
+        - in: body
+          name: nota
+          description: Dados da nota a ser atualizada
+          required: true
+          schema:
+            $ref: '#/definitions/Nota'
+      responses:
+        '200':
+          description: Nota atualizada com sucesso
+        '400':
+          description: Requisição inválida
+        '404':
+          description: Nota não encontrada
+definitions:
+  Nota:
+    type: object
+    properties:
+      id:
+        type: string
+      numeroNf:
+        type: number
+      dataNf:
+        type: string
+        format: date
+      valorTotal:
+        type: number
+      cnpjEmissorNf:
+        type: string
+      cnpjDestinatarioNf:
+        type: string
+    required:
+      - numeroNf
+      - dataNf
+      - valorTotal
+      - cnpjEmissorNf
+      - cnpjDestinatarioNf
